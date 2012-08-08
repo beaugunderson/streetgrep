@@ -1,0 +1,15 @@
+{
+   "name": "streetgrep.com",
+   "version": "0.0.0",
+   "dependencies": {
+      "express": "2.5.x",
+      "ejs": "*",
+      "request": "*",
+      "sprintf": "*",
+      "querystring": "*",
+      "mongodb": "*",
+      "oauth": "*",
+      "underscore": "*",
+      "connect-mongo": "*"
+   }
+}
