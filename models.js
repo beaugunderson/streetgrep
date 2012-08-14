@@ -6,21 +6,38 @@ var db = new Sequelize('database', 'username', 'password', {
 });
 
 var Image = db.define('Image', {
-  id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-  description: { type: Sequelize.STRING },
-  path: { type: Sequelize.STRING, allowNull: false }
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  description: {
+    type: Sequelize.STRING
+  },
+  path: {
+    type: Sequelize.STRING,
+    allowNull: false
+  }
 }, {
   underscored: true
 });
 
 var User = db.define('User', {
-  id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-  username: { type: Sequelize.STRING, allowNull: false }
+  id: {
+    type: Sequelize.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  username: {
+    type: Sequelize.STRING,
+    allowNull: false
+  }
 }, {
   underscored: true
 });
 
-Image.hasOne(User);
+Image.belongsTo(User);
+User.hasMany(Image);
 
 Image.sync();
 User.sync();

@@ -1,0 +1,16 @@
+body {
+  margin: 0;
+  padding: 0; }
+
+h1 {
+  margin: 0;
+  font-family: Consolas, Courier, monospace; }
+
+#header {
+  margin: 0;
+  padding: 1em;
+  background-color: #ccc; }
+
+#content {
+  margin: 0;
+  padding: 1em; }

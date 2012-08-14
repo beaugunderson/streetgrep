@@ -1,0 +1,7 @@
+{
+   "singly": {
+      "clientId": "0a9c41b5c18bf0e5024c4bcac5045703",
+      "clientSecret": "fa8740be3eeb0d536e5b57e3429a0cfb"
+   },
+   "sessionSecret": "streetgrep-secret"
+}
