@@ -1,17 +1,13 @@
 var express = require('express');
-var Sequelize = require('sequelize');
 var MongoStore = require('connect-mongo')(express);
+
+var models = require('./models');
 
 var PORT = 8048;
 
 var config = {
   sessionSecret: 'streetgrep-secret'
 };
-
-var sequelize = new Sequelize('database', 'username', 'password', {
-  dialect: 'mysql',
-  storage: 'streetgrep.sqlite'
-});
 
 // Create an HTTP server
 var app = express.createServer();
