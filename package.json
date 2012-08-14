@@ -2,14 +2,16 @@
    "name": "streetgrep.com",
    "version": "0.0.0",
    "dependencies": {
-      "express": "2.5.x",
+      "connect-mongo": "*",
       "ejs": "*",
-      "request": "*",
-      "sprintf": "*",
-      "querystring": "*",
+      "express": "2.5.x",
       "mongodb": "*",
       "oauth": "*",
-      "underscore": "*",
-      "connect-mongo": "*"
+      "querystring": "*",
+      "request": "*",
+      "sequelize": "*",
+      "sprintf": "*",
+      "sqlite3": "*",
+      "underscore": "*"
    }
 }
