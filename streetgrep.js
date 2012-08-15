@@ -1,6 +1,8 @@
 var express = require('express');
 var fs = require('fs');
 var querystring = require('querystring');
+
+var Resource = require('express-resource');
 var MongoStore = require('connect-mongo')(express);
 var OAuth2 = require('oauth').OAuth2;
 
@@ -54,25 +56,16 @@ app.get('/', function(req, res) {
   res.render('index');
 });
 
+var users = app.resource('users', require('./resources/users'));
+var photos = app.resource('photos', require('./resources/photos'));
+
+// users.add(photos);
+
 app.get('/profile', function(req, res) {
   res.render('profile');
 });
 
-app.get('/photos/:id', function(req, res) {
-  if (!req.params.id) {
-    return res.error(500);
-  }
-});
-
-app.get('/photos', function(req, res) {
-
-});
-
-app.post('/photos', function(req, res) {
-
-});
-
-app.get('/:user/photos', function(req, res) {
+app.get('/user/:user/photos', function(req, res) {
   if (req.params.user === 'me') {
     // Get the user's ID
     req.params.user = '';

@@ -5,6 +5,7 @@
       "connect-mongo": "*",
       "ejs": "*",
       "express": "2.5.x",
+      "express-resource": "",
       "mongodb": "*",
       "oauth": "*",
       "querystring": "*",
