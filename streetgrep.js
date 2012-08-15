@@ -21,7 +21,6 @@ var app = express.createServer();
 // Setup for the express web framework
 app.configure(function() {
   app.set('view engine', 'ejs');
-
   app.use(express.logger());
   app.use(express.static(__dirname + '/public'));
   app.use(express.bodyParser({
@@ -56,8 +55,15 @@ app.get('/', function(req, res) {
   res.render('index');
 });
 
-var users = app.resource('users', require('./resources/users'));
-var photos = app.resource('photos', require('./resources/photos'));
+var users = app.resource('users', require('./resources/users'), {
+  load: models.User.loadUser,
+  format: 'html'
+});
+
+var photos = app.resource('photos', require('./resources/photos'), {
+  load: models.Photo.loadPhoto,
+  format: 'html'
+});
 
 // users.add(photos);
 

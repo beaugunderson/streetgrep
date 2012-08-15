@@ -5,7 +5,7 @@ var db = new Sequelize('database', 'username', 'password', {
   storage: 'streetgrep.sqlite'
 });
 
-var Image = db.define('Image', {
+var Photo = db.define('Photo', {
   id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
@@ -19,7 +19,13 @@ var Image = db.define('Image', {
     allowNull: false
   }
 }, {
-  underscored: true
+  classMethods: {
+    loadPhoto: function(req, id, fn) {
+      Photo.find(parseInt(id, 10)).success(function(photo) {
+        fn(null, photo);
+      });
+    }
+  }
 });
 
 var User = db.define('User', {
@@ -31,18 +37,27 @@ var User = db.define('User', {
   username: {
     type: Sequelize.STRING,
     allowNull: false
+  },
+  singlyId: {
+    type: Sequelize.STRING
   }
 }, {
-  underscored: true
+  classMethods: {
+    loadUser: function(req, id, fn) {
+      User.find(parseInt(id, 10)).success(function(user) {
+        fn(null, user);
+      });
+    }
+  }
 });
 
-Image.belongsTo(User);
-User.hasMany(Image);
+User.hasMany(Photo);
+Photo.belongsTo(User);
 
-Image.sync();
 User.sync();
+Photo.sync();
 
 module.exports.db = db;
 
 module.exports.User = User;
-module.exports.Image = Image;
+module.exports.Photo = Photo;

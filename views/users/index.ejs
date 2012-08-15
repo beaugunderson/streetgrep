@@ -1,0 +1,9 @@
+<ul>
+<%
+users.forEach(function(user) {
+%>
+ <li><a href="/users/<%=user.id%>"><%=user.id%></a></li>
+<%
+});
+%>
+</ul>
