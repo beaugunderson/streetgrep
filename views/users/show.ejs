@@ -1,5 +1,7 @@
-User <%=user.id%>:
+User <%= user.id %>:
 
-<pre>
-<%=JSON.stringify(user)%>
-</pre>
+<code>
+ <pre>
+<%= JSON.stringify(user, null, " ") %>
+ </pre>
+</code>
