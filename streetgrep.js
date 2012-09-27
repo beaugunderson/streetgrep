@@ -1,6 +1,8 @@
 var express = require('express');
 var fs = require('fs');
+var login = require('connect-ensure-login');
 var partials = require('express-partials');
+var passport = require('passport');
 var querystring = require('querystring');
 var request = require('request');
 var sprintf = require('sprintf').sprintf;
@@ -10,13 +12,15 @@ var MongoStore = require('connect-mongo')(express);
 var OAuth2 = require('oauth').OAuth2;
 
 var models = require('./models');
+var streetgrepOAuth = require('./streetgrep-oauth');
 
 var API_URL = 'https://api.singly.com';
-var HOST_URL = 'http://streetgrep.com';
+var HOST_URL = 'https://streetgrep.com';
 
 var PORT = 8048;
 
-var config = JSON.parse(fs.readFileSync('config.json'));
+var SINGLY_APP_ID = process.env.SINGLY_APP_ID;
+var SINGLY_APP_SECRET = process.env.SINGLY_APP_SECRET;
 
 var app = express();
 
@@ -31,8 +35,8 @@ function authorizationLink(req) {
     return sprintf('<a href="%s/oauth/authorize?%s">%s</a>',
       API_URL,
       querystring.stringify({
-        client_id: config.singly.clientId,
-        redirect_uri: HOST_URL + "/auth/singly/auth",
+        client_id: SINGLY_APP_ID,
+        redirect_uri: HOST_URL + "/auth/singly",
         service: service
       }),
       name);
@@ -49,6 +53,7 @@ app.use(function(req, res, next) {
 // Setup for the express web framework
 app.configure(function() {
   app.set('view engine', 'ejs');
+  app.set('basepath', HOST_URL);
   app.engine('html', require('ejs').renderFile);
   app.use(partials());
   app.use(express.logger());
@@ -60,13 +65,97 @@ app.configure(function() {
   app.use(express.limit('16mb'));
   app.use(express.cookieParser());
   app.use(express.session({
-    secret: config.sessionSecret,
+    secret: process.env.SESSION_SECRET,
     store: new MongoStore({
       db: 'streetgrep-sessions'
     })
   }));
+  app.use(passport.initialize());
+  app.use(passport.session());
   app.use(app.router);
 });
+
+/* OAuth2 login */
+app.get('/login', function(req, res, next) {
+  res.render('login');
+});
+
+var RED = '\u001b[31m';
+var RESET = '\u001b[0m';
+
+app.get('/auth/singly', function(req, res, next) {
+  console.log(RED, 'calling passport.authenticate from /auth/singly', RESET);
+
+  passport.authenticate('singly', { service: req.param('service') },
+    function(err, user, info) {
+    if (err) {
+      console.log(RED, 'err', err, RESET);
+
+      return next(err);
+    }
+
+    console.log(RED, 'user', user, RESET);
+
+    if (!user) {
+      return res.redirect('/auth/singly?service=' + req.param('service'));
+    }
+
+    req.logIn(user, function(err) {
+      if (err) {
+        console.log(RED, 'err', err, RESET);
+
+        return next(err);
+      }
+
+      return res.redirect('/');
+    });
+  })(req, res, next);
+});
+
+app.get('/auth/singly/callback',
+  passport.authenticate('singly', { failureRedirect: '/login' }),
+  function(req, res) {
+    console.log(RED, 'authenticate from /auth/singly/callback', RESET);
+
+    res.redirect('/');
+  }
+);
+
+app.get('/logout', function(req, res) {
+  req.logout();
+  res.redirect('/');
+});
+
+app.get('/profile', [
+  login.ensureLoggedIn(),
+  function(req, res) {
+    res.render('profile', { user: req.user });
+  }
+]);
+
+/* OAuth2 provider */
+require('./auth');
+
+app.get('/oauth/authorize', streetgrepOAuth.authorization);
+app.post('/oauth/authorize/decision', streetgrepOAuth.decision);
+
+app.post('/oauth/access_token', streetgrepOAuth.token);
+
+app.get('/user/info', [
+  passport.authenticate('bearer', { session: false }),
+  function(req, res) {
+    // req.authInfo is set using the `info` argument supplied by
+    // `BearerStrategy`.  It is typically used to indicate scope of the token,
+    // and used in access control checks.  For illustrative purposes, this
+    // example simply returns the scope in the response.
+    res.json({
+      user_id: req.user.id,
+      name: req.user.name,
+      scope: req.authInfo.scope
+    });
+  }
+]);
+/* End OAuth2 provider */
 
 // We want exceptions and stracktraces in development
 app.configure('development', function() {
@@ -99,10 +188,6 @@ var photos = app.resource('photos', require('./resources/photos'), {
   format: 'html'
 });
 
-app.get('/profile', function(req, res) {
-  res.render('profile');
-});
-
 // users.add(photos);
 
 app.get('/user/:user/photos', function(req, res) {
@@ -112,8 +197,9 @@ app.get('/user/:user/photos', function(req, res) {
   }
 });
 
+/*
 // Singly integration
-var oa = new OAuth2(config.singly.clientId, config.singly.clientSecret,
+var oa = new OAuth2(SINGLY_APP_ID, SINGLY_APP_SECRET,
   API_URL);
 
 // A convenience method that takes care of adding the access token to requests
@@ -124,8 +210,8 @@ function getProtectedResource(path, session, callback) {
 // The callback that ends the OAuth2 flow from Singly
 app.get('/auth/singly/auth', function(req, res) {
   var data = {
-    client_id: config.singly.clientId,
-    client_secret: config.singly.clientSecret,
+    client_id: SINGLY_APP_ID,
+    client_secret: SINGLY_APP_SECRET,
     code: req.param('code')
   };
 
@@ -175,6 +261,7 @@ app.get('/auth/singly/auth', function(req, res) {
     });
   });
 });
+*/
 
 models.init(function() {
   console.log('Listening on ' + PORT);

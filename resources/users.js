@@ -30,13 +30,13 @@ exports.show = function(req, res) {
     if (req.format === 'json') {
       return res.json({
         user: user,
-        photos: user.getPhotos()
+        photos: user.getPhotoes()
       });
     }
 
     res.render('users/show', {
       user: user,
-      photos: user.getPhotos()
+      photos: user.getPhotoes()
     });
   });
 };
