@@ -6,6 +6,7 @@ var passport = require('passport');
 var querystring = require('querystring');
 var request = require('request');
 var sprintf = require('sprintf').sprintf;
+var uuid = require('node-uuid');
 
 var Resource = require('express-resource');
 var MongoStore = require('connect-mongo')(express);
@@ -174,9 +175,33 @@ app.get('/', function(req, res) {
   res.render('index');
 });
 
-app.get('/upload', function(req, res) {
-  res.render('upload');
-});
+app.get('/upload',
+  login.ensureLoggedIn(),
+  function(req, res) {
+    res.render('upload');
+  }
+);
+
+app.post('/upload',
+  login.ensureLoggedIn(),
+  function(req, res) {
+    fs.readFile(req.files.photo.path, function(err, data) {
+      // XXX
+      var fileName = uuid.v1() + '.jpg';
+      var newPath = __dirname + '/public/uploads/' + fileName;
+
+      fs.writeFile(newPath, data, function(err) {
+        models.Photo.create({
+          path: '/uploads/' + fileName
+        }).success(function(photo) {
+          res.redirect('/photos/' + photo.id);
+        }).error(function(err) {
+          res.redirect('/upload');
+        });
+      });
+    });
+  }
+);
 
 var users = app.resource('users', require('./resources/users'), {
   load: models.User.loadUser,

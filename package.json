@@ -13,6 +13,7 @@
       "oauth": "*",
       "oauth2orize": "*",
       "connect-ensure-login": "*",
+      "node-uuid": "*",
       "passport": "*",
       "passport-http": "*",
       "passport-http-bearer": "*",

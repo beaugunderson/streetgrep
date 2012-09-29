@@ -65,7 +65,7 @@ var Photo = db.define('Photo', {
   },
   path: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: true
   }
 }, {
   classMethods: {

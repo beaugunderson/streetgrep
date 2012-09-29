@@ -1,0 +1,11 @@
+Photo list:
+
+<ul>
+<%
+photos.forEach(function(photo) {
+%>
+ <li><a href="/photos/<%=photo.id%>"><%=photo.id%></a></li>
+<%
+});
+%>
+</ul>
