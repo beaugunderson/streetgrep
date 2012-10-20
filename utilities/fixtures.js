@@ -1,6 +1,6 @@
 var util = require('util');
 
-var models = require('../models');
+var models = require('models');
 
 models.init(function() {
   console.log('models.init callback()');

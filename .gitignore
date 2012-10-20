@@ -2,3 +2,8 @@ tmp
 node_modules
 .sass-cache
 *.sqlite
+public/originals
+public/thumbnails
+public/resized
+.env
+fixtures/upload.sh

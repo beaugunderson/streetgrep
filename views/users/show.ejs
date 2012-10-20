@@ -1,7 +1,45 @@
-User <%= user.id %>:
+<script
+ src="//maps.googleapis.com/maps/api/js?key=AIzaSyA0a8qLTr5CCn097Ek2ome8-qjSc2Qyztk&sensor=false"></script>
 
-<code>
- <pre>
-<%= JSON.stringify(user, null, " ") %>
- </pre>
-</code>
+<script>
+$(function() {
+  var mapOptions = {
+    center: new google.maps.LatLng(37.776278, -122.40805),
+    zoom: 13,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+
+  var map = new google.maps.Map(document.getElementById("map"),
+    mapOptions);
+
+  $.getJSON('/users/<%= user.id %>', function (user) {
+    var i;
+    for (i = 0; i < user.photos.length; i++) {
+      var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(user.photos[i].latitude,
+          user.photos[i].longitude),
+        map: map,
+        title: String(user.photos[i].id)
+      });
+    }
+  });
+});
+</script>
+
+<h1>User <%= user.id %></h1>
+
+<p>User since <span id="join-date"><%= user.createdAt %></span></p>
+
+<div id="map"></div>
+
+<% if (Array.isArray(photos)) { %>
+<ul class="thumbnails">
+<% photos.forEach(function(photo) { %>
+ <li>
+  <a href="/photos/<%= photo.id %>"><img src="/thumbnails/<%= photo.name %>" /></a>
+ </li>
+<% }); %>
+</ul>
+<% } else { %>
+This user hasn't uploaded any photos.
+<% } %>

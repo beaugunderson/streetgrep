@@ -1,4 +1,8 @@
-var models = require('../models');
+var express = require('express');
+
+var models = require('models');
+
+var app = express();
 
 /*
  * GET     /users             ->  index
@@ -10,33 +14,62 @@ var models = require('../models');
  * DELETE  /users/:user       ->  destroy
  */
 
-exports.index = function(req, res) {
-  models.User.count().success(function(count) {
-    models.User.findAll({ offset: 0, limit: 25 }).success(function(users) {
-      if (req.format === 'json') {
-        return res.json(users);
-      }
+app.get('/', function (req, res) {
+  var offset = 0;
+  var limit = 25;
 
-      res.render('users/index', {
+  if (req.param('offset')) {
+    offset = req.param('offset');
+  }
+
+  if (req.param('limit')) {
+    limit = req.param('limit');
+  }
+
+  models.User.count().success(function (count) {
+    models.User.findAll({ offset: 0, limit: 25 }).success(function (users) {
+      var data = {
         users: users,
         count: count
+      };
+
+      res.format({
+        html: function () {
+          res.render('users/index', data);
+        },
+        json: function () {
+          // TODO: Sanitize for singlyAccessToken
+          res.json(data);
+        }
       });
     });
   });
-};
+});
 
-exports.show = function(req, res) {
-  models.User.find(parseInt(req.params.user, 10)).success(function(user) {
-    if (req.format === 'json') {
-      return res.json({
-        user: user,
-        photos: user.getPhotoes()
-      });
+app.get('/:user', function (req, res) {
+  models.User.find(parseInt(req.params.user, 10)).success(function (user) {
+    if (!user) {
+      return res.send(404);
     }
 
-    res.render('users/show', {
-      user: user,
-      photos: user.getPhotoes()
+    user.getPhotoes().success(function (photos) {
+      var data = {
+        user: user,
+        photos: photos
+      };
+
+      res.format({
+        html: function () {
+          res.render('users/show', data);
+        },
+        json: function () {
+          delete data.user.singlyAccessToken;
+
+          res.json(data);
+        }
+      });
     });
   });
-};
+});
+
+module.exports = app;

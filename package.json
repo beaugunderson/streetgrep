@@ -3,11 +3,13 @@
    "version": "0.0.0",
    "dependencies": {
       "async": "*",
+      "bugsnag": "*",
       "connect-mongo": "*",
       "ejs": "*",
       "express": "3.x",
       "express-partials": "*",
       "express-resource": "git+https://github.com/visionmedia/express-resource.git#add/express3x-support",
+      "gm": "*",
       "lingo": "https://github.com/visionmedia/lingo/tarball/master",
       "mongodb": "*",
       "oauth": "*",

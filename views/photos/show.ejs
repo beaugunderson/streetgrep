@@ -1,7 +1,9 @@
-Photo <%= photo.id %>:
+Photo <%= photo.id %> by user <%= user.id %>:
 
 <code>
  <pre>
 <%= JSON.stringify(photo, null, " ") %>
  </pre>
 </code>
+
+<img src="/resized/<%= photo.name %>" />
