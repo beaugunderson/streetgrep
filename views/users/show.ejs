@@ -12,7 +12,7 @@ $(function() {
   var map = new google.maps.Map(document.getElementById("map"),
     mapOptions);
 
-  $.getJSON('/users/<%= user.id %>', function (user) {
+  $.getJSON('/users/<%= user.id %>.json', function (user) {
     var i;
     for (i = 0; i < user.photos.length; i++) {
       var marker = new google.maps.Marker({
