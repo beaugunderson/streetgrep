@@ -36,4 +36,7 @@ ul.thumbnails {
     margin-bottom: 5px;
     float: left; }
     ul.thumbnails li img {
-      max-width: 250px; }
+      background-color: #ccc;
+      max-width: 250px;
+      width: 250px;
+      height: 250px; }

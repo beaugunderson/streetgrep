@@ -46,7 +46,10 @@ ul.thumbnails {
     float: left;
 
     img {
+      background-color: #ccc;
       max-width: 250px;
+      width: 250px;
+      height: 250px;
     }
   }
 }
