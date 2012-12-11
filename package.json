@@ -21,7 +21,7 @@
       "passport-http-bearer": "*",
       "passport-local": "*",
       "passport-oauth2-client-password": "*",
-      "passport-singly": "https://github.com/Singly/passport-singly/tarball/master",
+      "passport-singly": "*",
       "querystring": "*",
       "request": "*",
       "sequelize": "*",
