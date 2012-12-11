@@ -11,70 +11,52 @@ var streetgrepOAuth = require('oauth-provider');
 
 require('passport-strategies');
 
-var HOST_URL = 'https://streetgrep.com';
-
-var PORT = 8048;
-
 var app = express();
 
-// Setup for the express web framework
-app.configure(function () {
-  app.set('view engine', 'ejs');
-  app.set('basepath', HOST_URL);
-  app.engine('html', require('ejs').renderFile);
-  app.use(bugsnag.register("be3cb308eb2b65c34cd1e9620ffcde49"));
-  app.use(partials());
-  app.use(express.logger());
-  app.use(express['static'](__dirname + '/public'));
-  app.use(express.bodyParser({
-    uploadDir: __dirname + '/tmp',
-    keepExtensions: true
-  }));
-  app.use(express.limit('16mb'));
-  app.use(express.cookieParser());
-  app.use(express.session({
-    secret: process.env.SESSION_SECRET,
-    store: new MongoStore({
-      db: 'streetgrep-sessions'
-    })
-  }));
-  app.use(passport.initialize());
-  app.use(passport.session());
-  app.use(app.router);
-});
+app.set('view engine', 'ejs');
+app.set('basepath', process.env.HOST_URL);
+
+app.engine('html', require('ejs').renderFile);
+
+app.use(bugsnag.register("be3cb308eb2b65c34cd1e9620ffcde49"));
+
+app.use(partials());
+
+app.use(express.logger());
+app.use(express.compress());
+app.use(express['static'](__dirname + '/public'));
+
+app.use(express.bodyParser({
+  uploadDir: __dirname + '/tmp',
+  keepExtensions: true
+}));
+
+app.use(express.limit('16mb'));
+app.use(express.cookieParser());
+
+app.use(express.session({
+  secret: process.env.SESSION_SECRET,
+  store: new MongoStore({
+    db: 'streetgrep-sessions'
+  })
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(app.router);
 
 /* OAuth2 login */
 app.get('/login', function (req, res) {
   res.render('login');
 });
 
-app.get('/auth/singly', function (req, res, next) {
-  passport.authenticate('singly', { service: req.param('service') },
-  function (err, user, info) {
-    if (err) {
-      return next(err);
-    }
+app.get('/auth/singly', passport.authenticate('singly'));
 
-    if (!user) {
-      return res.redirect('/auth/singly?service=' + req.param('service'));
-    }
-
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-
-      return res.redirect('/');
-    });
-  })(req, res, next);
-});
-
-app.get('/auth/singly/callback',
-  passport.authenticate('singly', { failureRedirect: '/login' }),
-  function (req, res) {
-    res.redirect('/');
-  }
-);
+app.get('/auth/singly/callback', passport.authenticate('singly', {
+  failureRedirect: '/login',
+  successReturnToOrRedirect: '/'
+}));
 
 /* OAuth2 provider */
 app.get('/oauth/authorize', streetgrepOAuth.authorization);
@@ -138,7 +120,7 @@ app.use('/api/v0/photos', require('./resources/photos'));
 app.all('/api/v0/*', passport.authenticate('bearer', { session: false }));
 
 models.init(function () {
-  console.log('Listening on ' + PORT);
+  console.log('Listening on ' + process.env.PORT);
 
-  app.listen(PORT);
+  app.listen(process.env.PORT);
 });
