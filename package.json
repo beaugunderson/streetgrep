@@ -1,6 +1,9 @@
 {
   "name": "streetgrep.com",
   "version": "0.0.0",
+  "devDependencies": {
+    "chai": "*"
+  },
   "dependencies": {
     "async": "*",
     "bugsnag": "*",

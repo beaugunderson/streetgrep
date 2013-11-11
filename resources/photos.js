@@ -49,8 +49,6 @@ app.get('/new', [
 
 app.post('/', function (req, res) {
   gm(req.files.photo.path).identify(function (err, metadata) {
-    var location = geo.convertFromExif(metadata['Profile-EXIF']);
-
     fs.readFile(req.files.photo.path, function (err, data) {
       // XXX
       var fileName = uuid.v1() + '.jpg';
@@ -65,6 +63,8 @@ app.post('/', function (req, res) {
           '/../public/thumbnails/' + fileName);
         image.resize('full', newPath, __dirname +
           '/../public/resized/' + fileName);
+
+        var location = geo.convertFromExif(metadata['Profile-EXIF']);
 
         models.Photo.create({
           name: fileName,
